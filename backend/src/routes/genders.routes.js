@@ -6,7 +6,7 @@ const generos = Router();
 
 generos.post('/registroGenero', validarGeneroRegistro, Registrogenders);
 generos.get('/BuscarGenero/:id', BuscarGenero);
-generos.put('ActualizarGenero/:id',validarGeneroActualizar, ActualizarGenero);
+generos.put('/ActualizarGenero/:id',validarGeneroActualizar, ActualizarGenero);
 generos.delete('/eliminarGenero/:id', EliminarGenero);
 
 export default generos;

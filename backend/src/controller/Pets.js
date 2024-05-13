@@ -40,3 +40,73 @@ export const registrarMascota = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+// Eliminar mascota
+export const eliminarMascota = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query('DELETE FROM pets WHERE id = ?', [id]);
+
+    if (result.affectedRows > 0) {
+      return res.status(200).json({ message: 'Mascota eliminada correctamente' });
+    } else {
+      return res.status(404).json({ message: 'Mascota no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error al eliminar la mascota:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+// Editar mascota
+export const editarMascota = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { race_id, category_id, gender_id, user_id } = req.body;
+
+    // Comprueba si se cargó una nueva foto
+    let photo = null;
+    if (req.file) {
+      photo = req.file.path;
+    }
+
+    // Construye la consulta SQL dinámicamente en función de si se actualizó la foto
+    let sql = '';
+    let params = [race_id, category_id, gender_id, user_id, id];
+    if (photo) {
+      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?, user_id = ?, photo = ? WHERE id = ?';
+      params = [race_id, category_id, gender_id, user_id, photo, id];
+    } else {
+      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?, user_id = ? WHERE id = ?';
+    }
+
+    const [result] = await pool.query(sql, params);
+
+    if (result.affectedRows > 0) {
+      return res.status(200).json({ message: 'Mascota actualizada correctamente' });
+    } else {
+      return res.status(404).json({ message: 'Mascota no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error al actualizar la mascota:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+// Buscar mascota
+export const buscarMascota = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [mascota] = await pool.query('SELECT * FROM pets WHERE id = ?', [id]);
+
+    if (mascota.length > 0) {
+      return res.status(200).json(mascota[0]);
+    } else {
+      return res.status(404).json({ message: 'Mascota no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error al buscar la mascota:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+

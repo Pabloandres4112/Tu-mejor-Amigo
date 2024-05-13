@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { registrarMascota } from "../controller/Pets.js";
-import { validarRegistroMascota } from "../validate/pets.validate.js";
 
-const Pets = Router()
+import { validarRegistroMascota, validarActualizacionMascota } from "../validate/pets.validate.js";
+import { buscarMascota, editarMascota, eliminarMascota, registrarMascota } from "../controller/Pets.js";
 
-Pets.post('/RegustroPets',validarRegistroMascota,registrarMascota)
+const Pets = Router();
+Pets.post('/RegustroPets', validarRegistroMascota,registrarMascota);
+Pets.put('/ActualizarPets/:id', validarActualizacionMascota, editarMascota);
+Pets.delete('/EliminarPets/:id', eliminarMascota);
+Pets.get('/BuscarPets/:id', buscarMascota);
 
-export default Pets
+export default Pets;
