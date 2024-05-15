@@ -5,10 +5,10 @@ import bcrypt from 'bcrypt';
 export const validar = async (req, res) => {
     try {
         const { correo, password } = req.body;
-        const sql = 'SELECT * FROM users WHERE email = ?';
-        const [rows] = await pool.query(sql, [correo]);
+        
+        const [rows] = await pool.query('SELECT * FROM users WHERE correo = ? AND password = ?', [correo, password], );
+        console.log(rows);
 
-        // console.log(rows);
         if (rows.length > 0) {
             const user = rows[0];
             const match = await bcrypt.compare(password, user.password);
@@ -26,6 +26,9 @@ export const validar = async (req, res) => {
         return res.status(500).json({ status: 500, message: 'Error del servidor: ' + error.message });
     }
 };
+
+
+
 
 export const validarToken = async (req, res, next) => {
     try {
