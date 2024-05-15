@@ -5,29 +5,26 @@ import bcrypt from 'bcrypt';
 export const validar = async (req, res) => {
     try {
         const { correo, password } = req.body;
-        
-        const [rows] = await pool.query('SELECT * FROM users WHERE correo = ? AND password = ?', [correo, password], );
-        console.log(rows);
+        const sql = `SELECT * FROM users WHERE email=?`;
+        const [rows] = await pool.query(sql, [correo]);
 
         if (rows.length > 0) {
             const user = rows[0];
-            const match = await bcrypt.compare(password, user.password);
+            const match = await bcrypt.compare(password, user.password); // Comparar contraseñas encriptadas
             if (match) {
-                const token = Jwt.sign({ user }, process.env.AUT_SECRET, { expiresIn: process.env.AUT_EXPIRE });
-                return res.status(200).json({ nombre: user.fullname, token: token, message: 'Token generado con éxito' });
+                const token = jwt.sign({ userId: user.id, email: user.email }, process.env.AUT_SECRET, { expiresIn: process.env.AUT_EXPIRE });
+                return res.status(200).json({ nombre: user.nombre, token: token, message: 'Token generado con éxito' });
             } else {
-                return res.status(404).json({ message: 'Credenciales inválidas' });
+                return res.status(401).json({ message: 'Credenciales inválidas' });
             }
         } else {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ status: 500, message: 'Error del servidor: ' + error.message });
+        console.error('Error en la función validar:', error);
+        return res.status(500).json({ status: 500, message: 'Error del servidor' });
     }
 };
-
-
 
 
 export const validarToken = async (req, res, next) => {

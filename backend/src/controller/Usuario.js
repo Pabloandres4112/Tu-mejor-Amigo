@@ -13,12 +13,12 @@ export const registroUsuario = async (req, res) => {
 
         // Verificar si se insertaron filas
         if (result.affectedRows > 0) {
-            res.status(200).json('Registro exitoso');
+            return res.status(200).json({ message: 'Registro exitoso' }); // Devuelve un objeto JSON con el mensaje de éxito
         } else {
-            res.status(500).json('Error al registrar usuario');
+            return res.status(500).json({ message: 'Error al registrar usuario' }); // Devuelve un objeto JSON con el mensaje de error
         }
     } catch (error) {
         console.error('Error al registrar usuario:', error);
-        res.status(500).json('Error al registrar usuario');
+        return res.status(500).json({ message: 'Error al registrar usuario' }); // Devuelve un objeto JSON con el mensaje de error
     }
 };
