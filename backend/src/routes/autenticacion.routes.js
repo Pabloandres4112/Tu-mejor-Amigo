@@ -1,9 +1,8 @@
-import { Router } from "express";
-import { validar } from "../controller/Autenticar.js";
+import { Router } from 'express';
+import { validar } from '../controller/Autenticar.js';
 
-const validacionLogin = Router()
+const validacionLogin = Router();
 
-validacionLogin.post('/Login',validar)
+validacionLogin.post('/login', validar);
 
-
-export default validacionLogin
+export default validacionLogin;
