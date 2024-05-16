@@ -3,18 +3,18 @@ import Login from './components/login';
 import Home from './components/Home';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
+  const handleLogin = () => {
+    setLoggedIn(true);
   };
 
   return (
     <div>
-      {!isLoggedIn ? (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      ) : (
+      {loggedIn ? (
         <Home />
+      ) : (
+        <Login onLogin={handleLogin} />
       )}
     </div>
   );
