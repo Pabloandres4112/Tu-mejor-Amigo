@@ -9,7 +9,7 @@ const petsData = [
   { id: 5, name: 'Ariana', breed: 'Graycat', image: 'path/to/graycat.jpg' },
 ];
 
-function Home() {
+function InfoPest() {
   const [pets, setPets] = useState(petsData);
 
   const handleAddPet = () => {
@@ -48,18 +48,7 @@ function Home() {
               <p className="text-gray-600">{pet.breed}</p>
             </div>
             <div className="flex">
-              <button
-                className="text-blue-500 mr-2"
-                onClick={() => handleEditPet(pet.id)}
-              >
-                ✎
-              </button>
-              <button
-                className="text-red-500"
-                onClick={() => handleDeletePet(pet.id)}
-              >
-                🗑️
-              </button>
+              
             </div>
           </div>
         ))}
@@ -68,4 +57,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default InfoPest;

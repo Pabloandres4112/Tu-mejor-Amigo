@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import LogoFondo from '../assets/imgs/bg-login.svg';
 import axios from 'axios';
 
-function Login({ onLogin }) {
+function Login( ) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''

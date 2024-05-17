@@ -15,9 +15,7 @@ const port = 3500;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors({
-  origin: ['http://localhost:5174', 'http://localhost:5173']
-}));
+app.use(cors());
 
 
 app.use(rutaUsuario);
