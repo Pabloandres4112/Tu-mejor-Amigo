@@ -1,8 +1,10 @@
+// src/components/Login.js
 import React, { useState } from "react";
 import LogoFondo from '../assets/imgs/bg-login.svg';
 import axios from 'axios';
+import { setToken } from '../middleware/localStore'; // Importa la función de almacenamiento de token
 
-function Login( ) {
+function Login({ onLogin }) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -15,15 +17,18 @@ function Login( ) {
     try {
       const response = await axios.post('http://localhost:3500/login', formData);
       console.log(response.data);
-      // Verificar la respuesta del servidor, si el inicio de sesión es exitoso, llamar a la función onLoginSuccess
-      if (response.data.success) {
+      
+      if (response.status === 200) {
+        const token = response.data.token;
+        // Almacenar el token en el localStorage usando la función importada
+        setToken(token);
         onLogin(); // Llama a la función de inicio de sesión proporcionada por el padre
       } else {
-        setError(response.data.message); // Configurar el mensaje de error desde el servidor
+        setError(response.data.message);
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
-      setError('Error al iniciar sesión. Por favor, inténtalo de nuevo.'); // Mensaje de error genérico
+      setError('Error al iniciar sesión. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -46,7 +51,7 @@ function Login( ) {
                 value={formData.email}
                 onChange={handleChange} 
                 required 
-                aria-label="Correo Electrónico" // Añadir etiqueta aria para accesibilidad
+                aria-label="Correo Electrónico"
                 className="peer h-10 w-full md:w-96 rounded-3xl bg-gray-100 opacity-70 px-4 text-sm outline-none sm:h-9 sm:px-3 focus:outline-none focus:bg-white focus:ring focus:border-blue-500" 
               />
               <label htmlFor="email" className="absolute left-2 top-0 flex h-full transform items-center pl-2 text-base transition-all duration-300 group-focus-within:-top-7 group-focus-within:h-1/2 group-focus-within:pl-0 group-focus-within:text-base group-focus-within:text-white peer-valid:-top-7 peer-valid:h-1/2 peer-valid:pl-0 peer-valid:text-base peer-valid:text-white">Correo Electrónico</label>
@@ -60,15 +65,15 @@ function Login( ) {
                 value={formData.password}
                 onChange={handleChange} 
                 required 
-                aria-label="Contraseña" // Añadir etiqueta aria para accesibilidad
+                aria-label="Contraseña"
                 className="peer h-10 w-full md:w-96 rounded-3xl bg-gray-100 opacity-70 px-4 text-sm outline-none sm:h-9 sm:px-3 focus:outline-none focus:bg-white focus:ring focus:border-blue-500" 
               />
               <label htmlFor="password" className="absolute left-2 top-0 flex h-full transform items-center pl-2 text-base transition-all duration-300 group-focus-within:-top-7 group-focus-within:h-1/2 group-focus-within:pl-0 group-focus-within:text-base group-focus-within:text-white peer-valid:-top-7 peer-valid:h-1/2 peer-valid:pl-0 peer-valid:text-base peer-valid:text-white">Contraseña</label>
             </div>
 
-            {error && <p className="text-red-500">{error}</p>} {/* Mostrar mensaje de error si hay un error */}
+            {error && <p className="text-red-500">{error}</p>} 
 
-            <button type="submit" className="h-12 w-full rounded-3xl bg-blue-600 text-white transition-all duration-300 hover:bg-blue-700 sm:h-11 sm:px-5">Iniciar Sesión</button> {/* Cambiar el color del botón de inicio de sesión */}
+            <button type="submit" className="h-12 w-full rounded-3xl bg-blue-600 text-white transition-all duration-300 hover:bg-blue-700 sm:h-11 sm:px-5">Iniciar Sesión</button>
           </form>
         </div>
       </div>

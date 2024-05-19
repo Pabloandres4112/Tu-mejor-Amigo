@@ -44,7 +44,7 @@ export const validarToken = async (req, res, next) => {
         if (!tokenClient) {
             return res.status(403).json({ message: 'Token es requerido' });
         } else {
-            Jwt.verify(tokenClient, process.env.AUT_SECRET, (error, decoded) => {
+            jwt.verify(tokenClient, process.env.AUT_SECRET, (error, decoded) => {
                 if (error) {
                     return res.status(403).json({ message: 'Token inválido: ' + error.message });
                 } else {
