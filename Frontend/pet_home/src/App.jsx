@@ -8,7 +8,7 @@ import MirarPets from './components/MirarPets';
 function App() {
   return (
     <div>
-      <InfoPest/>
+      <Home/>
     </div>
   );
 }
