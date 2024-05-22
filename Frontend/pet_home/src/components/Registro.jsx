@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import close from "../assets/imgs/btn-close.svg";
 import fondo from "../assets/imgs/bg.svg";
@@ -8,6 +8,7 @@ import Agregar from '../assets/imgs/btn-save.svg';
 import Foto from "../assets/imgs/photo-lg-0.svg";
 
 function RegistroPets() {
+  
   const [formData, setFormData] = useState({
     nombre: '',
     nombre_race: '',
@@ -15,6 +16,27 @@ function RegistroPets() {
     gender_id: '',
     user_id: '', // Asigna el user_id si es necesario
   });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [razas, setRazas] = useState([]);
+
+  useEffect(() => {
+    const fetchRazas = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get('http://localhost:3500/Listarrace');
+        console.log("Datos recibidos:", response.data);
+        // Asegúrate de que esto sea un array plano
+        setRazas(response.data);
+      } catch (error) {
+        console.error('Error al cargar las razas:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRazas();
+  }, []);
 
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -49,7 +71,7 @@ function RegistroPets() {
     }
   
     try {
-      const response = await axios.post('http://localhost:3500/RegustroPets', data, {
+      const response = await axios.post('http://localhost:3500/RegistroPets', data, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -77,44 +99,52 @@ function RegistroPets() {
         </div>
 
         <form onSubmit={handleSubmit} className="relative z-10">
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative">
-          <input
-            type="text"
-            placeholder="Nombre"
-            className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-        </div>
-
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5 h-10">
-          <input
-            type="text"
-            placeholder="Seleccione raza"
-            className="bg-transparent text-black placeholder-white rounded-md mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
+          <div className="bg-gray-400 w-full rounded-full flex items-center relative">
+            <input
+              type="text"
+              placeholder="Nombre"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleInputChange}
+              className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ placeholderColor: 'white' }}
+            />
           </div>
-        </div>
 
-        <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
-          <input
-            type="text"
-            placeholder="Seleccione categoría"
-            className="bg-transparent text-black placeholder-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
+          <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5 h-10">
+        <select
+          name="nombre_race"
+          value={formData.nombre_race}
+          onChange={handleInputChange}
+          className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="" disabled>Seleccione una raza</option>
+          {razas.length > 0 && razas.map((raza) => (
+            <option key={raza.id_race} value={raza.name_race}>
+              {raza.name_race}
+            </option>
+          ))}
+        </select>
+      </div>
+
+          <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
+            <input
+              type="text"
+              placeholder="Seleccione categoría"
+              name="category_id"
+              value={formData.category_id}
+              onChange={handleInputChange}
+              className="bg-transparent text-black placeholder-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ placeholderColor: 'white' }}
+            />
+            <div className="ml-auto flex space-x-2">
+              <button type="button">
+                <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
+          <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
             <input
               type="file"
               ref={fileInputRef}
@@ -135,19 +165,22 @@ function RegistroPets() {
             </div>
           </div>
 
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative z-10 mt-4">
-          <input
-            type="text"
-            placeholder="Seleccione género"
-            className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
+          <div className="bg-gray-400 w-full rounded-full flex items-center relative z-10 mt-4">
+            <input
+              type="text"
+              placeholder="Seleccione género"
+              name="gender_id"
+              value={formData.gender_id}
+              onChange={handleInputChange}
+              className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ placeholderColor: 'white' }}
+            />
+            <div className="ml-auto flex space-x-2">
+              <button type="button">
+                <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
+              </button>
+            </div>
           </div>
-        </div>
 
           <div className="flex justify-center mt-8">
             <button type="submit" className="bg-gray-400 w-30 h-10 rounded-full flex items-center relative z-10">

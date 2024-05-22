@@ -13,11 +13,11 @@ function Home() {
 
   useEffect(() => {
     axios.get('http://localhost:3500/ListarTodosPets')
-      .then(response => {
+     .then(response => {
         // Actualizar el estado `mascotas` con los datos recibidos
         setMascotas(response.data);
       })
-      .catch(error => {
+     .catch(error => {
         console.error('Error al obtener la lista de mascotas:', error);
       });
   }, []);
@@ -45,7 +45,12 @@ function Home() {
             {/* Agregar registro de consola para verificar la ruta de la imagen */}
             {console.log("Ruta de la imagen:", mascota.photo)}
             {/* Renderizamos la imagen de la mascota o la imagen predeterminada si no hay imagen */}
-            <img src={`http://localhost:3500${mascota.photo ? mascota.photo : `${Perro1}`}`} alt={mascota.nombre} className="rounded-full w-16 h-16 mr-4" />
+            <img 
+              src={mascota.photo? `http://localhost:3500${mascota.photo}` : Perro1} 
+              alt={mascota.nombre} 
+              className="rounded-full w-16 h-16 mr-4" 
+            />
+
             <div className="ml-4 text-cyan-950 font-semibold">
               <h1>{mascota.nombre}</h1>
               <h2>{mascota.raza}</h2>
