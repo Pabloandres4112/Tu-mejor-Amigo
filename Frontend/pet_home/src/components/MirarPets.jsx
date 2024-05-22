@@ -9,7 +9,7 @@ function MirarPets() {
 
   useEffect(() => {
     // Realizar la solicitud GET para obtener la información de la mascota con ID 11
-    axios.get('http://localhost:3500/BuscarPets/11')
+    axios.get('http://localhost:3500/BuscarPets/1')
       .then(response => {
         // Actualizar el estado mascota con los datos recibidos
         setMascota(response.data);

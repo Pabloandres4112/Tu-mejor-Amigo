@@ -24,7 +24,7 @@ export const registrarMascota = async (req, res) => {
       const photo = req.file ? req.file.path : null;
 
       // Insertar mascota en la base de datos
-      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id, user_id]);
+      const [result] = await pool.query('INSERT INTO pets (name_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id, user_id]);
 
       if (result.affectedRows > 0) {
         // Mascota registrada correctamente

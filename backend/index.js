@@ -18,7 +18,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors({
     origin: 'http://localhost:5173' // Agrega el origen de tu cliente aquí
   }));
-
+  app.set('view engine', 'ejs');
+  app.set('views', './views');
+  
+  app.get('/documents', (req, res) => {
+      res.render('document.ejs');
+  });
 
 app.use(rutaUsuario);
 app.use(validacionLogin)
