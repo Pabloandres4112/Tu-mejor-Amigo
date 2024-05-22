@@ -8,6 +8,6 @@ razas.post('/RegistroRaza', validarRegistroRace, RegistroRace);
 razas.get('/BuscarRaza/:id', BuscarRaza);
 razas.put('/ActualizarRaza/:id', validarActualizacionRace, ActualizarRaza);
 razas.delete('/EliminarRaza/:id', EliminarRaza);
-razas.get('/races',ListarRazas)
+razas.get('/listarRace',ListarRazas)
 
 export default razas;

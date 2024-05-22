@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Tabla pets
 CREATE TABLE IF NOT EXISTS pets (
   id_pets INT AUTO_INCREMENT PRIMARY KEY,
+  name_pets VARCHAR(50),
   race_id INT,
   fk_categories INT,
   photo VARCHAR(64),

@@ -42,8 +42,10 @@ function Home() {
         
         {mascotas.map((mascota, index) => (
           <div key={index} className="bg-gray-400 w-full p-4 rounded-2xl flex items-center relative z-10 mb-4">
+            {/* Agregar registro de consola para verificar la ruta de la imagen */}
+            {console.log("Ruta de la imagen:", mascota.photo)}
             {/* Renderizamos la imagen de la mascota o la imagen predeterminada si no hay imagen */}
-            <img src={mascota.photo || Perro1} alt={mascota.nombre} className="rounded-full w-16 h-16 mr-4" />
+            <img src={`http://localhost:3500${mascota.photo ? mascota.photo : `${Perro1}`}`} alt={mascota.nombre} className="rounded-full w-16 h-16 mr-4" />
             <div className="ml-4 text-cyan-950 font-semibold">
               <h1>{mascota.nombre}</h1>
               <h2>{mascota.raza}</h2>

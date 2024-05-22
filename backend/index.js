@@ -26,4 +26,6 @@ app.use(Pets)
 app.use(categories)
 app.use(generos)
 app.use(razas)
+app.use('/img', express.static('img/'));
+
 app.listen(port, () => console.log(`Server running on port ${port}`));

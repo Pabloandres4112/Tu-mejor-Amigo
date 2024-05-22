@@ -20,11 +20,11 @@ export const registrarMascota = async (req, res) => {
       }
 
       // Obtener datos del cuerpo de la solicitud y la ruta del archivo cargado
-      const { race_id, category_id, gender_id, user_id } = req.body;
+      const { nombre, race_id, fk_categories, gender_id, user_id } = req.body;
       const photo = req.file ? req.file.path : null;
 
       // Insertar mascota en la base de datos
-      const [result] = await pool.query('INSERT INTO pets (race_id, category_id, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?)', [race_id, category_id, photo, gender_id, user_id]);
+      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id, user_id]);
 
       if (result.affectedRows > 0) {
         // Mascota registrada correctamente
@@ -40,6 +40,8 @@ export const registrarMascota = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
 
 
 
@@ -137,8 +139,13 @@ export const listarMascotas = async (req, res) => {
     `;
     const [mascotas] = await pool.query(query);
 
-    // Si se encuentran mascotas, las envía en la respuesta
+    // Si se encuentran mascotas, actualiza la ruta de la foto para que sea accesible desde el cliente
     if (mascotas.length > 0) {
+      mascotas.forEach(mascota => {
+        // La ruta de la imagen es relativa a la carpeta raíz del servidor
+        mascota.photo = '/' + mascota.photo;
+      });
+      
       return res.status(200).json(mascotas);
     } else {
       // Si no se encuentran mascotas, indica que no hay resultados
@@ -150,5 +157,7 @@ export const listarMascotas = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
 
 

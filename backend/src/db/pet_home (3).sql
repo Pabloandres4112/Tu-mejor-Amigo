@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-05-2024 a las 03:49:54
+-- Tiempo de generación: 22-05-2024 a las 05:06:29
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -66,6 +66,7 @@ INSERT INTO `genders` (`id_gender`, `name_gender`) VALUES
 
 CREATE TABLE `pets` (
   `id_pets` int(11) NOT NULL,
+  `nombre_pets` varchar(50) NOT NULL,
   `race_id` int(11) NOT NULL,
   `fk_categories` int(11) NOT NULL,
   `photo` varchar(64) NOT NULL,
@@ -77,11 +78,13 @@ CREATE TABLE `pets` (
 -- Volcado de datos para la tabla `pets`
 --
 
-INSERT INTO `pets` (`id_pets`, `race_id`, `fk_categories`, `photo`, `gender_id`, `user_id`) VALUES
-(11, 1, 0, '', 1, 5),
-(12, 1, 0, '', 1, 5),
-(13, 2, 14, '', 1, 5),
-(14, 1, 0, '', 1, 2);
+INSERT INTO `pets` (`id_pets`, `nombre_pets`, `race_id`, `fk_categories`, `photo`, `gender_id`, `user_id`) VALUES
+(11, 'pablo', 1, 15, '', 1, 5),
+(12, '', 1, 0, '', 1, 5),
+(13, '', 2, 14, '', 1, 5),
+(14, '', 1, 0, '', 1, 2),
+(17, 'juanda', 3, 15, 'img\\1716259523351-tabas.jpg', 3, 4),
+(18, 'juanda', 3, 15, 'img\\1716260779800-temach.jpg', 3, 4);
 
 -- --------------------------------------------------------
 
@@ -101,7 +104,13 @@ CREATE TABLE `races` (
 INSERT INTO `races` (`id_race`, `name_race`) VALUES
 (1, 'macho'),
 (2, 'macho'),
-(3, 'gato');
+(3, 'gato'),
+(5, 'Labrador'),
+(6, 'Bulldog'),
+(7, 'Siames'),
+(8, 'Persa'),
+(9, 'nana'),
+(10, 'hoal');
 
 -- --------------------------------------------------------
 
@@ -125,7 +134,10 @@ INSERT INTO `users` (`id`, `fullname`, `email`, `password`) VALUES
 (2, 'Juan', 'juan@example.com', 'contraseña123'),
 (3, 'Juan', 'juan@example.com', 'contraseña123'),
 (4, NULL, 'juan@example.com', '$2b$10$lypGdosueuMQGmk8p5dzrOlP15IZYw5lAowvqLVd6HxJWhO/oeVEy'),
-(5, NULL, 'pablo@example.com', '$2b$10$8SYMuLAqmDAJn7YaelpCWe66ukRIV/8SMgYXiC2haEe8Dd3eOynH.');
+(5, NULL, 'pablo@example.com', '$2b$10$8SYMuLAqmDAJn7YaelpCWe66ukRIV/8SMgYXiC2haEe8Dd3eOynH.'),
+(6, 'Juan Pérez', 'juan@example.com', '$2b$10$0H0bFzlDn.RYx2ubCxb5EeZPPAcv21WnC1Ul9Q9JEwqcDVFrUxww2'),
+(7, 'caros', 'as@example.com', '$2b$10$.g.ydSSrQ3Sv4YQ.9RcMGO7mSx4ywqznQzt.gFESoUCXeQ9YoEQPm'),
+(8, 'hoa', 'a@gmail.com', '$2b$10$rwMYLXGAkAsxvGSumq8n3ejKLYOi4fAT1mHpGkqoWSfclZn5.Smga');
 
 --
 -- Índices para tablas volcadas
@@ -185,19 +197,19 @@ ALTER TABLE `genders`
 -- AUTO_INCREMENT de la tabla `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `id_pets` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_pets` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `races`
 --
 ALTER TABLE `races`
-  MODIFY `id_race` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_race` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas
