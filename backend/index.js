@@ -15,7 +15,9 @@ const port = 3500;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173' // Agrega el origen de tu cliente aquí
+  }));
 
 
 app.use(rutaUsuario);
@@ -24,4 +26,6 @@ app.use(Pets)
 app.use(categories)
 app.use(generos)
 app.use(razas)
+app.use('/img', express.static('img/'));
+
 app.listen(port, () => console.log(`Server running on port ${port}`));

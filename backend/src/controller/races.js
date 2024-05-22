@@ -79,3 +79,13 @@ export const EliminarRaza = async (req, res) => {
         res.status(500).json('Error interno del servidor');
     }
 };
+
+export const ListarRazas = async (req, res) => {
+    try {
+        const razas = await pool.query('SELECT * FROM races');
+        res.status(200).json(razas);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json('Error interno del servidor');
+    }
+};

@@ -20,11 +20,11 @@ export const registrarMascota = async (req, res) => {
       }
 
       // Obtener datos del cuerpo de la solicitud y la ruta del archivo cargado
-      const { race_id, category_id, gender_id, user_id } = req.body;
+      const { nombre, race_id, fk_categories, gender_id, user_id } = req.body;
       const photo = req.file ? req.file.path : null;
 
       // Insertar mascota en la base de datos
-      const [result] = await pool.query('INSERT INTO pets (race_id, category_id, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?)', [race_id, category_id, photo, gender_id, user_id]);
+      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id, user_id]);
 
       if (result.affectedRows > 0) {
         // Mascota registrada correctamente
@@ -40,6 +40,14 @@ export const registrarMascota = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
+
+
+
+
+
+
 
 // Eliminar mascota
 export const eliminarMascota = async (req, res) => {
@@ -62,7 +70,7 @@ export const eliminarMascota = async (req, res) => {
 export const editarMascota = async (req, res) => {
   try {
     const { id } = req.params;
-    const { race_id, category_id, gender_id, user_id } = req.body;
+    const { race_id, category_id, gender_id,  } = req.body;
 
     // Comprueba si se cargó una nueva foto
     let photo = null;
@@ -72,12 +80,12 @@ export const editarMascota = async (req, res) => {
 
     // Construye la consulta SQL dinámicamente en función de si se actualizó la foto
     let sql = '';
-    let params = [race_id, category_id, gender_id, user_id, id];
+    let params = [race_id, category_id, gender_id, , id];
     if (photo) {
-      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?, user_id = ?, photo = ? WHERE id = ?';
-      params = [race_id, category_id, gender_id, user_id, photo, id];
+      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?,  = ?, photo = ? WHERE id = ?';
+      params = [race_id, category_id, gender_id, , photo, id];
     } else {
-      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?, user_id = ? WHERE id = ?';
+      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?,  = ? WHERE id = ?';
     }
 
     const [result] = await pool.query(sql, params);
@@ -97,7 +105,15 @@ export const editarMascota = async (req, res) => {
 export const buscarMascota = async (req, res) => {
   try {
     const { id } = req.params;
-    const [mascota] = await pool.query('SELECT * FROM pets WHERE id = ?', [id]);
+    const query = `
+      SELECT p.nombre_pets AS nombre, r.name_race AS raza, g.name_gender AS genero, c.name_category AS categoria
+      FROM pets p
+      LEFT JOIN races r ON p.race_id = r.id_race
+      LEFT JOIN genders g ON p.gender_id = g.id_gender
+      LEFT JOIN categories c ON p.fk_categories = c.id_category
+      WHERE p.id_pets = ?
+    `;
+    const [mascota] = await pool.query(query, [id]);
 
     if (mascota.length > 0) {
       return res.status(200).json(mascota[0]);
@@ -109,4 +125,39 @@ export const buscarMascota = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
+
+// Controlador para buscar y listar todas las mascotas
+export const listarMascotas = async (req, res) => {
+  try {
+    // Realiza la consulta para seleccionar el nombre, la raza y la foto de las mascotas de la tabla 'pets'
+    const query = `
+      SELECT p.nombre_pets AS nombre, r.name_race AS raza, p.photo
+      FROM pets p
+      LEFT JOIN races r ON p.race_id = r.id_race
+    `;
+    const [mascotas] = await pool.query(query);
+
+    // Si se encuentran mascotas, actualiza la ruta de la foto para que sea accesible desde el cliente
+    if (mascotas.length > 0) {
+      mascotas.forEach(mascota => {
+        // La ruta de la imagen es relativa a la carpeta raíz del servidor
+        mascota.photo = '/' + mascota.photo;
+      });
+      
+      return res.status(200).json(mascotas);
+    } else {
+      // Si no se encuentran mascotas, indica que no hay resultados
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    // En caso de error, se captura y se envía una respuesta con el mensaje de error
+    console.error('Error al listar las mascotas:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+
+
 

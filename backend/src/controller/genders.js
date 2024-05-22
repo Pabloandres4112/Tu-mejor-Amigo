@@ -102,3 +102,22 @@ export const EliminarGenero = async (req, res) => {
     }
 };
 
+export const ListarGeneros = async (req, res) => {
+    try {
+        // Realizar una consulta SELECT para obtener todos los géneros
+        const [result] = await pool.query('SELECT * FROM genders');
+
+        // Comprobar si se obtuvieron resultados
+        if (result.length > 0) {
+            // Enviar los resultados como respuesta JSON
+            res.status(200).json(result);
+        } else {
+            // Enviar un mensaje indicando que no se encontraron géneros
+            res.status(200).json([]);
+        }
+    } catch (error) {
+        console.error(error);
+        // Enviar un mensaje de error interno del servidor
+        res.status(500).json('Error interno del servidor');
+    }
+};
