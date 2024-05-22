@@ -6,7 +6,7 @@ import InfoPest from './components/InfoPest';
 function App() {
   return (
     <div>
-      <InfoPest/>
+      <Home/>
     </div>
   );
 }
