@@ -23,11 +23,12 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
-      <div className="relative w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 bg-blue-900 rounded-lg p-6 h-screen justify-center overflow-y-scroll">
-        <div className="absolute inset-0 bg-no-repeat bg-cover opacity-20" style={{ backgroundImage: `url(${fondo})` }}></div>
-        
-        <div className="flex justify-between items-center mb-6 relative z-10 w-full h-10 mt-8">
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="relative overflow-hidden rounded-3xl shadow-lg bg-white">
+        <div className="bg-cover bg-center" style={{ backgroundImage: `url(${fondo})`, height: "850px", width: "500px" }}></div>
+        <div className="absolute inset-4 flex flex-col items-center justify-end bottom-80">
+          
+        <div className="flex justify-between items-center mb-6 relative z-10 w-full h-10 ">
           <h1 className="text-white text-lg pl-10">Administrar mascotas</h1>
           <button className="flex rounded-full w-8 h-8 justify-center items-center">
             <img src={close} alt="Cerrar" className="w-full h-full rounded-full" />
@@ -62,6 +63,7 @@ function Home() {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );
