@@ -20,11 +20,11 @@ export const registrarMascota = async (req, res) => {
       }
 
       // Obtener datos del cuerpo de la solicitud y la ruta del archivo cargado
-      const { nombre, race_id, fk_categories, gender_id, user_id } = req.body;
+      const { nombre, race_id, fk_categories, gender_id } = req.body;
       const photo = req.file ? req.file.path : null;
 
       // Insertar mascota en la base de datos
-      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id, user_id]);
+      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id , fk_categories, photo, gender_id) VALUES (?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id]);
 
       if (result.affectedRows > 0) {
         // Mascota registrada correctamente
@@ -53,7 +53,7 @@ export const registrarMascota = async (req, res) => {
 export const eliminarMascota = async (req, res) => {
   try {
     const { id } = req.params;
-    const [result] = await pool.query('DELETE FROM pets WHERE id = ?', [id]);
+    const [result] = await pool.query('DELETE FROM pets WHERE id_pets  = ?', [id]);
 
     if (result.affectedRows > 0) {
       return res.status(200).json({ message: 'Mascota eliminada correctamente' });
@@ -159,5 +159,38 @@ export const listarMascotas = async (req, res) => {
 };
 
 
+
+// Controlador para actualizar una mascota
+export const actualizarMascota = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, race_id, fk_categories, gender_id } = req.body;
+    let photo = null;
+
+    if (req.file) {
+      photo = req.file.path;
+    }
+
+    const query = `
+      UPDATE pets SET
+        nombre_pets = COALESCE(?, nombre_pets),
+        race_id = COALESCE(?, race_id),
+        fk_categories = COALESCE(?, fk_categories),
+        gender_id = COALESCE(?, gender_id),
+        photo = COALESCE(?, photo)
+      WHERE id_pets = ?
+    `;
+    const [result] = await pool.query(query, [nombre, race_id, fk_categories, gender_id, photo, id]);
+
+    if (result.affectedRows > 0) {
+      return res.status(200).json({ message: 'Mascota actualizada correctamente' });
+    } else {
+      return res.status(404).json({ message: 'Mascota no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error al actualizar la mascota:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
 
 

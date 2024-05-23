@@ -118,11 +118,17 @@ export const ListarCategorias = async (req, res) => {
             res.status(200).json(result);
         } else {
             // Enviar un mensaje indicando que no se encontraron categorías
-            res.status(200).json([]);
+            res.status(200).json({
+                message: 'No se encontraron categorías',
+                data: []
+            });
         }
     } catch (error) {
         console.error(error);
         // Enviar un mensaje de error interno del servidor
-        res.status(500).json('Error interno del servidor');
+        res.status(500).json({
+            message: 'Error interno del servidor',
+            error
+        });
     }
 };

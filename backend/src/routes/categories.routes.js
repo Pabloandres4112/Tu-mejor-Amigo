@@ -8,6 +8,6 @@ categories.post('/registrocategories', validarRegistroCategories, RegistroCatego
 categories.put('/actualizarcategories/:id', validarActualizacionCategoria, ActualizarCategoria);
 categories.delete('/eliminarcategories/:id', EliminarCategoria);
 categories.get('/buscarcategories/:id', BuscarCategoriaPorId);
-categories.get('listarCategoria',ListarCategorias)
+categories.get('/listarCategoria',ListarCategorias)
 
 export default categories;

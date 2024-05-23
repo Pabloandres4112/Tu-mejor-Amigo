@@ -82,10 +82,15 @@ export const EliminarRaza = async (req, res) => {
 
 export const ListarRazas = async (req, res) => {
     try {
-        const razas = await pool.query('SELECT * FROM races');
-        res.status(200).json(razas);
+        const [result] = await pool.query('SELECT * FROM races');
+
+        if (result.length > 0) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json({ message: "Error al listar las razas." });
+        }
     } catch (error) {
-        console.error(error);
-        res.status(500).json('Error interno del servidor');
+        res.status(500).json({ message: "Error del servidor: " + error });
     }
 };
+

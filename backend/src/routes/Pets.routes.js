@@ -5,7 +5,7 @@ import { buscarMascota, editarMascota, eliminarMascota, registrarMascota, listar
 
 const Pets = Router();
 
-Pets.post('/RegustroPets', registrarMascota);
+Pets.post('/RegistroPets', registrarMascota);
 Pets.put('/ActualizarPets/:id', validarActualizacionMascota, editarMascota);
 Pets.delete('/EliminarPets/:id', eliminarMascota);
 Pets.get('/BuscarPets/:id', buscarMascota);

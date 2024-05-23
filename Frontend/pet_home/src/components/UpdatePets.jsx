@@ -37,6 +37,35 @@ function UpdatePets() {
     fetchPet();
   }, []);
 
+  const handleUpdate = async () => {
+    try {
+      const response = await fetch(`http://localhost:3500/actualizarMascota/1`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          race_id: formData.raza,
+          fk_categories: formData.categoria,
+          gender_id: formData.genero,
+          photo: formData.foto,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message); // Mensaje de éxito
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message); // Mensaje de error
+      }
+    } catch (error) {
+      console.error('Error al actualizar la mascota:', error);
+      alert('Error interno del servidor');
+    }
+  };
+
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100 min-h-screen">
       <div className="relative w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 rounded-lg p-6 h-screen justify-center overflow-hidden shadow-lg">
