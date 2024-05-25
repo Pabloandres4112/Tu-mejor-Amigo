@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import LogoFondo from '../assets/imgs/bg-login.svg';
 import axios from 'axios';
 import { setToken } from '../middleware/localStore'; // Importa la función de almacenamiento de token
+import { useNavigate } from "react-router-dom";
 
 function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ function Login({ onLogin }) {
     password: ''
   });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,7 +24,8 @@ function Login({ onLogin }) {
         const token = response.data.token;
         // Almacenar el token en el localStorage usando la función importada
         setToken(token);
-        onLogin(); // Llama a la función de inicio de sesión proporcionada por el padre
+      
+        navigate('/home')
       } else {
         setError(response.data.message);
       }

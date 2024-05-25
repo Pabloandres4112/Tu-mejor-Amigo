@@ -80,7 +80,7 @@ export const editarMascota = async (req, res) => {
 
     // Construye la consulta SQL dinámicamente en función de si se actualizó la foto
     let sql = '';
-    let params = [race_id, category_id, gender_id, , id];
+    let params = [race_id, category_id, gender_id,id];
     if (photo) {
       sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?,  = ?, photo = ? WHERE id = ?';
       params = [race_id, category_id, gender_id, , photo, id];
@@ -106,13 +106,13 @@ export const buscarMascota = async (req, res) => {
   try {
     const { id } = req.params;
     const query = `
-      SELECT p.nombre_pets AS nombre, r.name_race AS raza, g.name_gender AS genero, c.name_category AS categoria
-      FROM pets p
-      LEFT JOIN races r ON p.race_id = r.id_race
-      LEFT JOIN genders g ON p.gender_id = g.id_gender
-      LEFT JOIN categories c ON p.fk_categories = c.id_category
-      WHERE p.id_pets = ?
-    `;
+  SELECT p.nombre_pets AS nombre, r.name_race AS raza, g.name_gender AS genero, c.name_category AS categoria
+  FROM pets p
+  LEFT JOIN races r ON p.race_id = r.id_race
+  LEFT JOIN genders g ON p.gender_id = g.id_gender
+  LEFT JOIN categories c ON p.fk_categories = c.id_category
+  WHERE p.id_pets = ?`;
+
     const [mascota] = await pool.query(query, [id]);
 
     if (mascota.length > 0) {
@@ -131,9 +131,9 @@ export const buscarMascota = async (req, res) => {
 // Controlador para buscar y listar todas las mascotas
 export const listarMascotas = async (req, res) => {
   try {
-    // Realiza la consulta para seleccionar el nombre, la raza y la foto de las mascotas de la tabla 'pets'
+    // Modifica la consulta para seleccionar el id, nombre, la raza y la foto de las mascotas
     const query = `
-      SELECT p.nombre_pets AS nombre, r.name_race AS raza, p.photo
+      SELECT p.id_pets AS id, p.nombre_pets AS nombre, r.name_race AS raza, p.photo
       FROM pets p
       LEFT JOIN races r ON p.race_id = r.id_race
     `;
@@ -145,7 +145,8 @@ export const listarMascotas = async (req, res) => {
         // La ruta de la imagen es relativa a la carpeta raíz del servidor
         mascota.photo = '/' + mascota.photo;
       });
-      
+
+      // Ahora cada mascota tiene un campo 'id' además de 'nombre', 'raza', y 'photo'
       return res.status(200).json(mascotas);
     } else {
       // Si no se encuentran mascotas, indica que no hay resultados
@@ -157,6 +158,7 @@ export const listarMascotas = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
 
 
 

@@ -5,6 +5,7 @@ import fondo from "../assets/imgs/bg.svg";
 import iconFoto from "../assets/imgs/icon-camera.svg";
 import Agregar from '../assets/imgs/btn-save.svg';
 import Foto from "../assets/imgs/photo-lg-0.svg";
+import { useNavigate } from 'react-router-dom';
 
 function RegistroPets() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function RegistroPets() {
     gender_id: '',
     user_id: '', // Asigna el user_id si es necesario
   });
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [razas, setRazas] = useState([]);
@@ -80,7 +82,7 @@ function RegistroPets() {
   
     const data = new FormData();
     data.append('nombre', formData.nombre);
-    data.append('race_id', formData.race_id);
+    data.append('race_id', formData.race_id); // Corregido aquí, eliminado el espacio adicional
     data.append('fk_categories', formData.fk_categories);
     data.append('gender_id', formData.gender_id);
     data.append('user_id', formData.user_id);
@@ -99,7 +101,10 @@ function RegistroPets() {
       console.error('Error al registrar la mascota:', error);
     }
   };
-  
+  const cerrar = () => {
+    navigate('/home');
+  };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -109,7 +114,7 @@ function RegistroPets() {
         
       <div className="flex justify-between items-center mb-16 relative z-10 w-full h-16 pr-6">
           <h1 className="text-white text-lg pl-10">Registrar Mascota</h1>
-          <button className="flex rounded-full w-8 h-8 justify-center items-center">
+          <button className="flex rounded-full w-8 h-8 justify-center items-center" onClick={cerrar}>
             <img src={close} alt="Cerrar" className="w-full h-full rounded-full" />
           </button>
         </div>
@@ -215,3 +220,4 @@ function RegistroPets() {
 }
 
 export default RegistroPets;
+
