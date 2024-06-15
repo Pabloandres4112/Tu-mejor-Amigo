@@ -1,164 +1,230 @@
-import React, { useState, useEffect } from 'react';
-import close from "../assets/imgs/btn-close.svg";
-import fondo from "../assets/imgs/bg.svg";
-import iconFoto from "../assets/imgs/icon-camera.svg";
-import Aumentar from "../assets/imgs/arrows.svg";
-import Actualizar from "../assets/imgs/btn-update.svg";
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
+import close from '../assets/imgs/btn-close.svg';
+import fondo from '../assets/imgs/bg.svg';
+import iconFoto from '../assets/imgs/icon-camera.svg';
+import Agregar from '../assets/imgs/btn-save.svg';
+import Foto from '../assets/imgs/photo-lg-0.svg';
 
 function UpdatePets() {
   const [formData, setFormData] = useState({
     nombre: '',
-    raza: '',
-    categoria: '',
-    genero: '',
-    foto: null,
+    race_id: '',
+    fk_categories: '',
+    gender_id: '',
   });
-
-  const [petImage, setPetImage] = useState(null);
-
-  // Assuming the pet ID is passed as a prop or retrieved from another source
-  const petId = 1; // Example static ID
+  const [isLoading, setIsLoading] = useState(false);
+  const [razas, setRazas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [generos, setGeneros] = useState([]);
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   useEffect(() => {
-    const fetchPet = async () => {
+    const fetchRazas = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:3500/BuscarPets/${petId}`);
-        const pet = await response.json();
-        setFormData({
-          nombre: pet.nombre,
-          raza: pet.raza,
-          categoria: pet.categoria,
-          genero: pet.genero,
-          foto: pet.foto,
-        });
-        setPetImage(pet.foto? `http://localhost:3500${pet.foto}` : null);
+        const racesResponse = await axios.get('http://localhost:3500/listarRace');
+        setRazas(racesResponse.data);
       } catch (error) {
-        console.error('Error al obtener la mascota:', error);
+        console.error('Error al cargar las razas:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchPet();
+    const fetchCategorias = async () => {
+      try {
+        const categoriesResponse = await axios.get('http://localhost:3500/listarCategoria');
+        setCategorias(categoriesResponse.data);
+      } catch (error) {
+        console.error('Error al cargar las categorías:', error);
+      }
+    };
+
+    const fetchGeneros = async () => {
+      try {
+        const gendersResponse = await axios.get('http://localhost:3500/listar-generos');
+        setGeneros(gendersResponse.data);
+      } catch (error) {
+        console.error('Error al cargar los géneros:', error);
+      }
+    };
+
+    fetchRazas();
+    fetchCategorias();
+    fetchGeneros();
   }, []);
 
-  const updatePet = async () => {
-    try {
-      const response = await fetch(`http://localhost:3500/ActualizarPets/${petId}`, {
-        method: 'PUT', // or 'PATCH'
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update pet');
+  useEffect(() => {
+    const fetchPetData = async () => {
+      try {
+        const petResponse = await axios.get(`http://localhost:3500/BuscarPets/${id}`);
+        const { nombre, race_id, fk_categories, gender_id, photo } = petResponse.data;
+        setFormData({
+          nombre,
+          race_id,
+          fk_categories,
+          gender_id,
+        });
+        if (photo) {
+          setFile(photo); // Assuming the photo is a URL or base64 string
+        }
+      } catch (error) {
+        console.error('Error al cargar los datos de la mascota:', error);
       }
+    };
 
-      alert('Mascota actualizada exitosamente!');
-      // Reset formData or navigate away after successful update
+    fetchPetData();
+  }, [id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    if (formData.nombre) data.append('nombre', formData.nombre);
+    if (formData.race_id) data.append('race_id', formData.race_id);
+    if (formData.fk_categories) data.append('fk_categories', formData.fk_categories);
+    if (formData.gender_id) data.append('gender_id', formData.gender_id);
+    if (file) data.append('photo', file);
+
+    try {
+      const response = await axios.put(`http://localhost:3500/ActualizarPets/${id}`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+      navigate('/home');
     } catch (error) {
-      console.error('Error actualizando la mascota:', error);
-      alert('Hubo un error al actualizar la mascota.');
+      console.error('Error al actualizar la mascota:', error);
+      if (error.response) {
+        console.error('Datos de error:', error.response.data);
+      }
     }
   };
+
+  const cerrar = () => {
+    navigate('/home');
+  };
+
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100 min-h-screen">
-      <div className="relative w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 rounded-lg p-6 h-screen justify-center overflow-hidden shadow-lg">
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${fondo})` }}
-        />
-
-        <div className="flex justify-between items-center mb-16 relative z-10 w-full h-10 mt-9 ">
-          <h1 className="text-white text-lg pl-10">Actualizar mascota</h1>
-          <button className="flex rounded-full w-8 h-8 justify-center items-center">
-            <img src={close} alt="Cerrar" className="w-full h-full rounded-full" />
-          </button>
-        </div>
-
-        <div className="flex justify-center items-center mb-24 mt-24">
-          {petImage && (
-            <img src={petImage.photo} alt="Imagen del Pet" className="rounded-full w-32 h-32 absolute" /> // Usar petImage directamente
-          )}
-        </div>
-
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative">
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={formData.nombre}
-            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-            className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-        </div>
-
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5 h-10">
-          <input
-            type="text"
-            placeholder="Seleccione raza"
-            value={formData.raza}
-            onChange={(e) => setFormData({ ...formData, raza: e.target.value })}
-            className="bg-transparent text-black placeholder-white rounded-md mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="relative overflow-hidden rounded-3xl shadow-lg bg-white">
+        <div className="bg-cover bg-center" style={{ backgroundImage: `url(${fondo})`, height: "850px", width: "500px" }}></div>
+        <div className="absolute inset-0 flex flex-col items-center justify-end mb-32">
+          <div className="flex justify-between items-center mb-16 relative z-10 w-full h-16 pr-6">
+            <h1 className="text-white text-lg pl-10">Actualizar Mascota</h1>
+            <button className="flex rounded-full w-8 h-8 justify-center items-center" onClick={cerrar}>
+              <img src={close} alt="Cerrar" className="w-full h-full rounded-full" />
             </button>
           </div>
-        </div>
 
-        <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
-          <input
-            type="text"
-            placeholder="Seleccione categoría"
-            value={formData.categoria}
-            onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-            className="bg-transparent text-black placeholder-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
+          <div className="flex justify-center items-center mb-28 mt-24">
+            <img
+              src={file ? (typeof file === 'string' ? `http://localhost:3500${file}` : URL.createObjectURL(file)) : Foto}
+              alt="Foto Mascota"
+              className="rounded-full w-32 h-32 absolute"
+            />
           </div>
-        </div>
 
-        <div className="bg-gray-400 w-full h-10 rounded-full flex items-center relative z-10 mt-4">
-          <input
-            type="text"
-            placeholder="Cambiar Foto"
-            className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={iconFoto} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
-          </div>
-        </div>
+          <form onSubmit={handleSubmit} className="relative z-10">
+            <div className="bg-gray-400 w-full rounded-full flex items-center relative">
+              <input
+                type="text"
+                placeholder="Nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleInputChange}
+                className="bg-transparent text-black placeholder-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              />
+            </div>
 
-        <div className="bg-gray-400 w-full rounded-full flex items-center relative z-10 mt-4">
-          <input
-            type="text"
-            placeholder="Seleccione género"
-            value={formData.genero}
-            onChange={(e) => setFormData({ ...formData, genero: e.target.value })}
-            className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ placeholderColor: 'white' }}
-          />
-          <div className="ml-auto flex space-x-2">
-            <button>
-              <img src={Aumentar} alt="Mostrar" className="w-14 h-5 rounded-r-xl" />
-            </button>
-          </div>
-        </div>
+            <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5">
+              <select
+                name="race_id"
+                value={formData.race_id}
+                onChange={handleInputChange}
+                className="bg-transparent text-black placeholder-white rounded-md p-2 w-full mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option key="" value="">Seleccione una raza</option>
+                {razas.map((raza) => (
+                  <option key={raza.race_id} value={raza.race_id}>{raza.name_race}</option>
+                ))}
+              </select>
+            </div>
 
-        <div className="flex justify-center items-center h-24">
-          <button className="flex justify-center items-center">
-            <img src={Actualizar} alt="Actualizar" className="w-full h-full rounded-full absolute" />
-          </button>
+            <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5">
+              <select
+                name="fk_categories"
+                value={formData.fk_categories}
+                onChange={handleInputChange}
+                className="bg-transparent text-black placeholder-white rounded-md p-2 w-full mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option key="" value="">Seleccione una categoría</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id_category} value={categoria.id_category}>{categoria.name_category}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5">
+              <select
+                name="gender_id"
+                value={formData.gender_id}
+                onChange={handleInputChange}
+                className="bg-transparent text-black placeholder-white rounded-md p-2 w-full mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option key="" value="">Seleccione un género</option>
+                {generos.map((genero) => (
+                  <option key={genero.id_gender} value={genero.id_gender}>{genero.name_gender}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="bg-gray-400 w-full rounded-full flex items-center relative mt-5">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+              <input
+                type="text"
+                placeholder="Cambiar Foto"
+                className="bg-transparent text-black placeholder-white rounded-md p-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+              <button type="button" onClick={handleButtonClick}>
+                <img src={iconFoto} alt="Agregar Foto" className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center p-1" />
+              </button>
+            </div>
+
+            <div className="flex justify-center mt-8">
+              <button type="submit" className="w-30 h-10 rounded-full flex items-center relative z-10">
+                <img src={Agregar} alt="Agregar" className="w-full h-full rounded-r-full flex items-center px-2" />
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -166,4 +232,3 @@ function UpdatePets() {
 }
 
 export default UpdatePets;
-

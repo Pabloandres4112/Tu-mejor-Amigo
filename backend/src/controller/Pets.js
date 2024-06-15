@@ -5,37 +5,38 @@ import upload from "./Cargar.Img.js"; // Importa la instancia de Multer configur
 // Controlador para registrar una mascota
 export const registrarMascota = async (req, res) => {
   try {
-    // Comprobar errores de validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Manejar la carga de archivos con Multer
     upload(req, res, async function (err) {
       if (err) {
-        // Manejar errores de carga de archivos
         console.error('Error al cargar la imagen:', err);
         return res.status(500).json({ message: 'Error al cargar la imagen' });
       }
 
-      // Obtener datos del cuerpo de la solicitud y la ruta del archivo cargado
-      const { nombre, race_id, fk_categories, gender_id } = req.body;
+      const { nombre, race_id, fk_categories, gender_id, user_id } = req.body; // Añadir user_id
       const photo = req.file ? req.file.path : null;
 
-      // Insertar mascota en la base de datos
-      const [result] = await pool.query('INSERT INTO pets (nombre_pets, race_id , fk_categories, photo, gender_id) VALUES (?, ?, ?, ?, ?)', [nombre, race_id, fk_categories, photo, gender_id]);
+      // Verificar si el user_id existe en la tabla users
+      const [userRows] = await pool.query('SELECT id FROM users WHERE id = ?', [user_id]);
+      if (userRows.length === 0) {
+        return res.status(400).json({ message: 'El user_id proporcionado no existe' });
+      }
+
+      const [result] = await pool.query(
+        'INSERT INTO pets (nombre_pets, race_id, fk_categories, photo, gender_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
+        [nombre, race_id, fk_categories, photo, gender_id, user_id]
+      );
 
       if (result.affectedRows > 0) {
-        // Mascota registrada correctamente
         return res.status(200).json({ message: 'Mascota registrada correctamente' });
       } else {
-        // Error al registrar la mascota en la base de datos
         throw new Error('No se pudo registrar la mascota');
       }
     });
   } catch (error) {
-    // Manejar errores generales
     console.error('Error al registrar la mascota:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
@@ -70,25 +71,23 @@ export const eliminarMascota = async (req, res) => {
 export const editarMascota = async (req, res) => {
   try {
     const { id } = req.params;
-    const { race_id, category_id, gender_id,  } = req.body;
+    const { nombre , race_id, category_id, gender_id, photo } = req.body;
 
-    // Comprueba si se cargó una nueva foto
-    let photo = null;
-    if (req.file) {
-      photo = req.file.path;
-    }
-
-    // Construye la consulta SQL dinámicamente en función de si se actualizó la foto
     let sql = '';
-    let params = [race_id, category_id, gender_id,id];
+    let sqlParams = [];
+
     if (photo) {
-      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?,  = ?, photo = ? WHERE id = ?';
-      params = [race_id, category_id, gender_id, , photo, id];
+      sql = 'UPDATE pets SET  race_id = ?, fk_categories = ?, gender_id = ?, photo = ? WHERE id_pets = ?';
+      sqlParams = [race_id, category_id, gender_id, photo, id];
     } else {
-      sql = 'UPDATE pets SET race_id = ?, category_id = ?, gender_id = ?,  = ? WHERE id = ?';
+      sql = 'UPDATE pets SET race_id = ?, fk_categories = ?, gender_id = ? WHERE id_pets = ?';
+      sqlParams = [race_id, category_id, gender_id, id];
     }
 
-    const [result] = await pool.query(sql, params);
+    // Verificar si las categorías y géneros proporcionados existen en la base de datos
+
+    // Ejecutar la actualización de la mascota
+    const [result] = await pool.query(sql, sqlParams);
 
     if (result.affectedRows > 0) {
       return res.status(200).json({ message: 'Mascota actualizada correctamente' });
@@ -101,20 +100,39 @@ export const editarMascota = async (req, res) => {
   }
 };
 
+
+
+
+
+
 // Buscar mascota
 export const buscarMascota = async (req, res) => {
   try {
     const { id } = req.params;
+    
     const query = `
-  SELECT p.nombre_pets AS nombre, r.name_race AS raza, g.name_gender AS genero, c.name_category AS categoria
-  FROM pets p
-  LEFT JOIN races r ON p.race_id = r.id_race
-  LEFT JOIN genders g ON p.gender_id = g.id_gender
-  LEFT JOIN categories c ON p.fk_categories = c.id_category
-  WHERE p.id_pets = ?`;
-
+      SELECT
+        p.nombre_pets AS nombre,
+        p.photo,
+        r.name_race AS raza,
+        g.name_gender AS genero,
+        c.name_category AS categoria
+      FROM
+        pets p
+        LEFT JOIN races r ON p.race_id = r.id_race
+        LEFT JOIN genders g ON p.gender_id = g.id_gender
+        LEFT JOIN categories c ON p.fk_categories = c.id_category
+      WHERE
+        p.id_pets = ?;
+    `;
+    
     const [mascota] = await pool.query(query, [id]);
-
+    if (mascota.length > 0) {
+      mascota.forEach(mascota => {
+        // La ruta de la imagen es relativa a la carpeta raíz del servidor
+        mascota.photo = '/' + mascota.photo;
+      });
+    }
     if (mascota.length > 0) {
       return res.status(200).json(mascota[0]);
     } else {
@@ -125,6 +143,9 @@ export const buscarMascota = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
+
 
 
 
@@ -173,16 +194,43 @@ export const actualizarMascota = async (req, res) => {
       photo = req.file.path;
     }
 
-    const query = `
-      UPDATE pets SET
-        nombre_pets = COALESCE(?, nombre_pets),
-        race_id = COALESCE(?, race_id),
-        fk_categories = COALESCE(?, fk_categories),
-        gender_id = COALESCE(?, gender_id),
-        photo = COALESCE(?, photo)
-      WHERE id_pets = ?
-    `;
-    const [result] = await pool.query(query, [nombre, race_id, fk_categories, gender_id, photo, id]);
+    const updates = [];
+    const params = [];
+
+    if (nombre) {
+      updates.push('nombre_pets = ?');
+      params.push(nombre);
+    }
+    if (race_id) {
+      updates.push('race_id = ?');
+      params.push(race_id);
+    }
+    if (fk_categories) {
+      // Verificar si fk_categories existe en la tabla categories
+      const [categorias] = await pool.query('SELECT id_category FROM categories WHERE id_category = ?', [fk_categories]);
+      if (categorias.length === 0) {
+        return res.status(400).json({ message: 'La categoría especificada no es válida' });
+      }
+      updates.push('fk_categories = ?');
+      params.push(fk_categories);
+    }
+    if (gender_id) {
+      updates.push('gender_id = ?');
+      params.push(gender_id);
+    }
+    if (photo) {
+      updates.push('photo = ?');
+      params.push(photo);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'No se proporcionaron campos para actualizar' });
+    }
+
+    const sql = `UPDATE pets SET ${updates.join(', ')} WHERE id_pets = ?`;
+    params.push(id);
+
+    const [result] = await pool.query(sql, params);
 
     if (result.affectedRows > 0) {
       return res.status(200).json({ message: 'Mascota actualizada correctamente' });
